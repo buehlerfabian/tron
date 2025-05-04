@@ -12,30 +12,33 @@ from tron_client import ServerScanner
 from tron_client import TronClient
 
 C_PLAYER = [
-    (111, 226, 226), # cyan (Player 1)
-    (242, 160, 7),   # orange (Player 2)
-    (180, 0, 255),   # neon purple (Player 3)
-    (0, 255, 128)    # turquoise green (Player 4)
+    (111, 226, 226),  # cyan (Player 1)
+    (242, 160, 7),  # orange (Player 2)
+    (180, 0, 255),  # neon purple (Player 3)
+    (0, 255, 128),  # turquoise green (Player 4)
 ]
+
 
 def rgb255(r, g, b):
     return (r / 255.0, g / 255.0, b / 255.0)
 
+
 def rgba255(r, g, b, a):
     return (r / 255.0, g / 255.0, b / 255.0, a)
 
+
 C_PLAYER = [
-    rgba255(111, 226, 226, 1), # cyan
-    rgba255(242, 160,   7, 1), # orange
-    rgba255(180,   0, 255, 1), # neon purple
-    rgba255(  0, 255, 128, 1)  # turquoise green
+    rgba255(111, 226, 226, 1),  # cyan
+    rgba255(242, 160, 7, 1),  # orange
+    rgba255(180, 0, 255, 1),  # neon purple
+    rgba255(0, 255, 128, 1),  # turquoise green
 ]
 
 C_WALL = [
-    rgba255(  0, 255, 255, 0.5),
-    rgba255(255, 100,   0, 0.5),
-    rgba255(180,   0, 255, 0.5),
-    rgba255(  0, 255, 128, 0.5)
+    rgba255(0, 255, 255, 0.5),
+    rgba255(255, 100, 0, 0.5),
+    rgba255(180, 0, 255, 0.5),
+    rgba255(0, 255, 128, 0.5),
 ]
 
 C_BLACK = rgb255(0, 0, 0)
@@ -45,7 +48,8 @@ C_GRID = rgb255(200, 200, 200)
 GRID_Z = 1
 CYCLE_Z = 10
 
-def set_camera(x, y, dx, dy, cam_z, look = 0):
+
+def set_camera(x, y, dx, dy, cam_z, look=0):
     if look == -1:
         dx, dy = -dy, dx
     elif look == 1:
@@ -55,16 +59,16 @@ def set_camera(x, y, dx, dy, cam_z, look = 0):
     target_y = y + dy * 10000
     target_z = cam_z
 
-    gluLookAt(
-            x, y, cam_z,
-            target_x, target_y, target_z,
-              0, 0, 1)
+    gluLookAt(x, y, cam_z, target_x, target_y, target_z, 0, 0, 1)
 
-def setup_directional_light(light_id=GL_LIGHT0,
-                             light_direction = (0.0, -1.0, -1.0),
-                             ambient = (0.4, 0.4, 0.4, 1.0),
-                             diffuse = (0.3, 0.3, 0.3, 1.0),
-                             specular = (1.0, 1.0, 1.0, 1.0)):
+
+def setup_directional_light(
+    light_id=GL_LIGHT0,
+    light_direction=(0.0, -1.0, -1.0),
+    ambient=(0.4, 0.4, 0.4, 1.0),
+    diffuse=(0.3, 0.3, 0.3, 1.0),
+    specular=(1.0, 1.0, 1.0, 1.0),
+):
 
     glEnable(GL_LIGHTING)
     glEnable(light_id)
@@ -79,6 +83,7 @@ def setup_directional_light(light_id=GL_LIGHT0,
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, (1.0, 1.0, 1.0, 1.0))
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 80.0)
 
+
 def draw_lightwall(x0, y0, x1, y1, color, height=90, thickness=4):
     dx = x1 - x0
     dy = y1 - y0
@@ -92,7 +97,7 @@ def draw_lightwall(x0, y0, x1, y1, color, height=90, thickness=4):
     nx = -dy * thickness / 2
     ny = dx * thickness / 2
 
-    z0 = GRID_Z + 10 
+    z0 = GRID_Z + 10
     z1 = z0 + height
 
     glColor4f(*color)
@@ -143,10 +148,11 @@ def draw_lightwall(x0, y0, x1, y1, color, height=90, thickness=4):
 
     glEnd()
 
+
 def draw_lightcycle(x, y, dx, dy, color):
     glPushMatrix()
 
-    CYCLE_WIDTH  = 20
+    CYCLE_WIDTH = 20
     CYCLE_LENGTH = 40
     CYCLE_HEIGHT = 20
 
@@ -166,48 +172,49 @@ def draw_lightcycle(x, y, dx, dy, color):
 
     # Bottom
     glNormal3f(0.0, 0.0, 1.0)
-    glVertex3f(-w1,  l, 0)
-    glVertex3f( w1,  l, 0)
-    glVertex3f( w0, -l, 0)
+    glVertex3f(-w1, l, 0)
+    glVertex3f(w1, l, 0)
+    glVertex3f(w0, -l, 0)
     glVertex3f(-w0, -l, 0)
 
     # Top
     glNormal3f(-0.0, 0.316, 0.949)  # ≈ 18.43° Neigung nach vorne
     glVertex3f(-w0, -l, h0)
-    glVertex3f( w0, -l, h0)
-    glVertex3f( w1,  l, h1)
-    glVertex3f(-w1,  l, h1)
+    glVertex3f(w0, -l, h0)
+    glVertex3f(w1, l, h1)
+    glVertex3f(-w1, l, h1)
 
     # Left
     glNormal3f(0.992, -0.124, 0.0)  # leicht nach innen geneigt
     glVertex3f(-w0, -l, h0)
-    glVertex3f(-w1,  l, h1)
-    glVertex3f(-w1,  l, 0)
+    glVertex3f(-w1, l, h1)
+    glVertex3f(-w1, l, 0)
     glVertex3f(-w0, -l, 0)
 
     # Right
     glNormal3f(0.992, 0.124, 0.0)  # leicht nach innen geneigt
-    glVertex3f( w0, -l, 0)
-    glVertex3f( w1,  l, 0)
-    glVertex3f( w1,  l, h1)
-    glVertex3f( w0, -l, h0)
+    glVertex3f(w0, -l, 0)
+    glVertex3f(w1, l, 0)
+    glVertex3f(w1, l, h1)
+    glVertex3f(w0, -l, h0)
 
     # Back
     glNormal3f(0.0, -1.0, 0.0)
     glVertex3f(-w0, -l, 0)
-    glVertex3f( w0, -l, 0)
-    glVertex3f( w0, -l, h0)
+    glVertex3f(w0, -l, 0)
+    glVertex3f(w0, -l, h0)
     glVertex3f(-w0, -l, h0)
 
     # Front
     glNormal3f(0.0, -1.0, 0.0)  # bleibt gleich wegen senkrechter Fläche
     glVertex3f(-w1, l, h1)
-    glVertex3f( w1, l, h1)
-    glVertex3f( w1, l, 0)
+    glVertex3f(w1, l, h1)
+    glVertex3f(w1, l, 0)
     glVertex3f(-w1, l, 0)
 
     glEnd()
     glPopMatrix()
+
 
 def _build_grid(width, height):
     glEnable(GL_POLYGON_OFFSET_FILL)
@@ -242,19 +249,24 @@ def _build_grid(width, height):
 
     glEnable(GL_LIGHTING)  # !!! Re-enable lighting after drawing lines
 
+
 def open_serial():
     ser_dev = next(
-        (p.device for p in serial.tools.list_ports.comports()
-            if p.device.startswith("/dev/cu.usbserial")),
-        None
+        (
+            p.device
+            for p in serial.tools.list_ports.comports()
+            if p.device.startswith("/dev/cu.usbserial")
+        ),
+        None,
     )
     try:
         ser = serial.Serial(ser_dev, 9600, timeout=0)
-        ser.write(b'X')
+        ser.write(b"X")
         return ser
     except:
         print(f"can not open serial device {ser_dev}")
     return None
+
 
 class Tron3D:
 
@@ -285,7 +297,7 @@ class Tron3D:
         fonts = pygame.font.get_fonts()
         for name in sorted(fonts):
             print(name)
-        
+
         mono_fonts = ["andalemono", "consolas", "couriernew", "monospace"]
         normal_fonts = ["helvetica", "timesnewroman", "monospace"]
 
@@ -347,23 +359,42 @@ class Tron3D:
 
         for i in range(2):
             glBindTexture(GL_TEXTURE_2D, self.sideview_tex[i])
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-                         self.sideview_tex_size, self.sideview_tex_size, 0,
-                         GL_RGB, GL_UNSIGNED_BYTE, None)
+            glTexImage2D(
+                GL_TEXTURE_2D,
+                0,
+                GL_RGB,
+                self.sideview_tex_size,
+                self.sideview_tex_size,
+                0,
+                GL_RGB,
+                GL_UNSIGNED_BYTE,
+                None,
+            )
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 
             glBindFramebuffer(GL_FRAMEBUFFER, self.sideview_fbo[i])
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                                   GL_TEXTURE_2D, self.sideview_tex[i], 0)
+            glFramebufferTexture2D(
+                GL_FRAMEBUFFER,
+                GL_COLOR_ATTACHMENT0,
+                GL_TEXTURE_2D,
+                self.sideview_tex[i],
+                0,
+            )
 
             glBindRenderbuffer(GL_RENDERBUFFER, self.sideview_depth_rb[i])
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT,
-                                  self.sideview_tex_size,
-                                  self.sideview_tex_size)
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-                                      GL_RENDERBUFFER,
-                                      self.sideview_depth_rb[i])
+            glRenderbufferStorage(
+                GL_RENDERBUFFER,
+                GL_DEPTH_COMPONENT,
+                self.sideview_tex_size,
+                self.sideview_tex_size,
+            )
+            glFramebufferRenderbuffer(
+                GL_FRAMEBUFFER,
+                GL_DEPTH_ATTACHMENT,
+                GL_RENDERBUFFER,
+                self.sideview_depth_rb[i],
+            )
         glBindFramebuffer(GL_FRAMEBUFFER, 0)
 
         # Setup light
@@ -391,9 +422,11 @@ class Tron3D:
         arena = self.tron_client.arena
         x, y, angle = arena.width // 2, arena.height // 2, 0
 
-        if arena.I_am_player is not None \
-                and arena.player[arena.I_am_player] is not None \
-                and arena.player[arena.I_am_player].x is not None:
+        if (
+            arena.I_am_player is not None
+            and arena.player[arena.I_am_player] is not None
+            and arena.player[arena.I_am_player].x is not None
+        ):
             x = arena.player[arena.I_am_player].x
             y = arena.player[arena.I_am_player].y
             angle = arena.player[arena.I_am_player].get_angle()
@@ -404,7 +437,7 @@ class Tron3D:
         assert self.tron_client.arena is not None
 
         arena = self.tron_client.arena
-    
+
         msg = "All dead! No winner!"
         color = (255, 255, 255)
         if winner >= 0:
@@ -415,28 +448,29 @@ class Tron3D:
 
     def show_connect(self):
         self.set_mode(Tron3D.Mode.IN_2D)
-        title_text = self.title_font.render("TRON: Lightcycle", True,
-                                            (255, 255, 255))
+        title_text = self.title_font.render("TRON: Lightcycle", True, (255, 255, 255))
         title_rect = title_text.get_rect(center=(self.width // 2, 80))
         self.screen.blit(title_text, title_rect)
 
         prompt_name = self.input_font.render("Name:", True, (100, 200, 100))
-        input_name = self.input_font.render(self.name
-            + ("‸" if self.edit == 0 else ""), True, (155, 255, 155))
+        input_name = self.input_font.render(
+            self.name + ("‸" if self.edit == 0 else ""), True, (155, 255, 155)
+        )
         self.screen.blit(prompt_name, (self.width // 5, 180))
-        self.screen.blit(input_name,   (self.width // 5 + 150, 180))
+        self.screen.blit(input_name, (self.width // 5 + 150, 180))
 
         prompt_server = self.input_font.render("Server:", True, (100, 200, 100))
-        input_server = self.input_font.render(self.host
-            + ("‸" if self.edit == 1 else ""), True, (155, 255, 155))
+        input_server = self.input_font.render(
+            self.host + ("‸" if self.edit == 1 else ""), True, (155, 255, 155)
+        )
         self.screen.blit(prompt_server, (self.width // 5, 230))
-        self.screen.blit(input_server,   (self.width // 5 + 150, 230))
+        self.screen.blit(input_server, (self.width // 5 + 150, 230))
 
-        hint = ("^Q: Quit  |  TAB: switch field  |  ^F: find server  "
-                "|  RETURN: connect")
+        hint = (
+            "^Q: Quit  |  TAB: switch field  |  ^F: find server  " "|  RETURN: connect"
+        )
         hint_text = self.hint_font.render(hint, True, (150, 150, 150))
-        hint_rect = hint_text.get_rect(center=(self.width // 2,
-                                               self.height - 80))
+        hint_rect = hint_text.get_rect(center=(self.width // 2, self.height - 80))
         self.screen.blit(hint_text, hint_rect)
 
     def get_serverlist(self):
@@ -446,7 +480,8 @@ class Tron3D:
         self.set_mode(Tron3D.Mode.IN_2D)
 
         title_text = self.title_font.render(
-                "TRON servers in local network", True, (255, 255, 255))
+            "TRON servers in local network", True, (255, 255, 255)
+        )
         title_rect = title_text.get_rect(center=(self.width // 2, 80))
         self.screen.blit(title_text, title_rect)
 
@@ -463,15 +498,20 @@ class Tron3D:
 
         lx, ly = self.width // 2 - 150, self.height // 3
         if self.serverlist_i0 > 0:
-            pygame.draw.polygon(self.screen, (0, 255, 255),
-                                [(lx+5, ly-15), (lx+25, ly-15), (lx+15, ly-25)])
+            pygame.draw.polygon(
+                self.screen,
+                (0, 255, 255),
+                [(lx + 5, ly - 15), (lx + 25, ly - 15), (lx + 15, ly - 25)],
+            )
         if self.serverlist_i0 + max_items < len(server_list):
             Ly = ly + max_items * 40
-            pygame.draw.polygon(self.screen, (0, 255, 255),
-                                [(lx+5, Ly), (lx+25, Ly), (lx+15, Ly+10)])
+            pygame.draw.polygon(
+                self.screen,
+                (0, 255, 255),
+                [(lx + 5, Ly), (lx + 25, Ly), (lx + 15, Ly + 10)],
+            )
 
-        server_list = server_list[self.serverlist_i0 :
-                                  self.serverlist_i0 + max_items ]
+        server_list = server_list[self.serverlist_i0 : self.serverlist_i0 + max_items]
 
         for i0, addr in enumerate(server_list):
             i = self.serverlist_i0 + i0
@@ -481,8 +521,7 @@ class Tron3D:
 
         hint = "ESC: Cancle  |  RETURN: select  |  ↑↓:  up / down"
         hint_text = self.hint_font.render(hint, True, (150, 150, 150))
-        hint_rect = hint_text.get_rect(center=(self.width // 2,
-                                               self.height - 80))
+        hint_rect = hint_text.get_rect(center=(self.width // 2, self.height - 80))
         self.screen.blit(hint_text, hint_rect)
 
     def show_state(self):
@@ -490,10 +529,9 @@ class Tron3D:
 
         state = self.tron_client.get_state_msg()
         state_text = self.state_font.render(state, True, (150, 150, 150))
-        state_rect = state_text.get_rect(center=(self.width // 2,
-                                                 self.height - 40))
+        state_rect = state_text.get_rect(center=(self.width // 2, self.height - 40))
         self.screen.blit(state_text, state_rect)
-        
+
     def show_score(self):
         self.set_mode(Tron3D.Mode.IN_2D)
 
@@ -518,8 +556,9 @@ class Tron3D:
             y += label.get_height() + 5
 
         if self.winner is not None:
-            winner_rect = self.winner.get_rect(center=(self.width // 2,
-                                                       self.height // 2))
+            winner_rect = self.winner.get_rect(
+                center=(self.width // 2, self.height // 2)
+            )
             self.screen.blit(self.winner, winner_rect)
 
     def draw_state_overlay(self):
@@ -546,18 +585,23 @@ class Tron3D:
 
         tex_id = glGenTextures(1)
         glBindTexture(GL_TEXTURE_2D, tex_id)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tw, th, 0, GL_RGBA,
-                     GL_UNSIGNED_BYTE, text_data)
+        glTexImage2D(
+            GL_TEXTURE_2D, 0, GL_RGBA, tw, th, 0, GL_RGBA, GL_UNSIGNED_BYTE, text_data
+        )
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
 
         x = (self.width - tw) // 2
         y = 20
         glColor3f(1, 1, 1)
         glBegin(GL_QUADS)
-        glTexCoord2f(0, 0); glVertex2f(x, y)
-        glTexCoord2f(1, 0); glVertex2f(x + tw, y)
-        glTexCoord2f(1, 1); glVertex2f(x + tw, y + th)
-        glTexCoord2f(0, 1); glVertex2f(x, y + th)
+        glTexCoord2f(0, 0)
+        glVertex2f(x, y)
+        glTexCoord2f(1, 0)
+        glVertex2f(x + tw, y)
+        glTexCoord2f(1, 1)
+        glVertex2f(x + tw, y + th)
+        glTexCoord2f(0, 1)
+        glVertex2f(x, y + th)
         glEnd()
 
         glDeleteTextures([tex_id])
@@ -569,7 +613,6 @@ class Tron3D:
         glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
         glPopMatrix()
-    
 
     def draw_score_overlay(self):
         arena = self.tron_client.arena
@@ -600,17 +643,30 @@ class Tron3D:
             glEnable(GL_TEXTURE_2D)
             tex_id = glGenTextures(1)
             glBindTexture(GL_TEXTURE_2D, tex_id)
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tw, th, 0, GL_RGBA,
-                         GL_UNSIGNED_BYTE, text_data)
+            glTexImage2D(
+                GL_TEXTURE_2D,
+                0,
+                GL_RGBA,
+                tw,
+                th,
+                0,
+                GL_RGBA,
+                GL_UNSIGNED_BYTE,
+                text_data,
+            )
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
 
             glColor3f(1, 1, 1)
             x, y0 = 10, y
             glBegin(GL_QUADS)
-            glTexCoord2f(0, 0); glVertex2f(x, y0)
-            glTexCoord2f(1, 0); glVertex2f(x + tw, y0)
-            glTexCoord2f(1, 1); glVertex2f(x + tw, y0 + th)
-            glTexCoord2f(0, 1); glVertex2f(x, y0 + th)
+            glTexCoord2f(0, 0)
+            glVertex2f(x, y0)
+            glTexCoord2f(1, 0)
+            glVertex2f(x + tw, y0)
+            glTexCoord2f(1, 1)
+            glVertex2f(x + tw, y0 + th)
+            glTexCoord2f(0, 1)
+            glVertex2f(x, y0 + th)
             glEnd()
 
             glDeleteTextures([tex_id])
@@ -644,8 +700,9 @@ class Tron3D:
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
         half_width, half_height = view_width // 2, view_height // 2
-        gluOrtho2D(p.x - half_width, p.x + half_width,
-                   p.y - half_height, p.y + half_height)
+        gluOrtho2D(
+            p.x - half_width, p.x + half_width, p.y - half_height, p.y + half_height
+        )
 
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -701,16 +758,18 @@ class Tron3D:
         glEnable(GL_LIGHTING)
         glViewport(0, 0, self.width, self.height)
 
-    def set_camera(self, look = None):
+    def set_camera(self, look=None):
         assert self.tron_client.arena is not None
         arena = self.tron_client.arena
 
         if look == None:
             look = self.look
 
-        if arena.I_am_player is not None \
-                and arena.player[arena.I_am_player] is not None \
-                and arena.player[arena.I_am_player].x is not None:
+        if (
+            arena.I_am_player is not None
+            and arena.player[arena.I_am_player] is not None
+            and arena.player[arena.I_am_player].x is not None
+        ):
             x = arena.player[arena.I_am_player].x
             y = arena.player[arena.I_am_player].y
             dx = arena.player[arena.I_am_player].dx
@@ -764,10 +823,14 @@ class Tron3D:
 
         glColor3f(1, 1, 1)
         glBegin(GL_QUADS)
-        glTexCoord2f(0, 0); glVertex2f(x0 + skew_x, y0)
-        glTexCoord2f(1, 0); glVertex2f(x0 + w + skew_x, y0)
-        glTexCoord2f(1, 1); glVertex2f(x0 + w - skew_x, y0 + h)
-        glTexCoord2f(0, 1); glVertex2f(x0 - skew_x, y0 + h)
+        glTexCoord2f(0, 0)
+        glVertex2f(x0 + skew_x, y0)
+        glTexCoord2f(1, 0)
+        glVertex2f(x0 + w + skew_x, y0)
+        glTexCoord2f(1, 1)
+        glVertex2f(x0 + w - skew_x, y0 + h)
+        glTexCoord2f(0, 1)
+        glVertex2f(x0 - skew_x, y0 + h)
         glEnd()
 
         glDisable(GL_TEXTURE_2D)
@@ -858,7 +921,7 @@ class Tron3D:
                     elif ch == b"X":
                         while self.ser.in_waiting < 4:
                             pass
-                        val = int(self.ser.read(4).decode('utf-8'))
+                        val = int(self.ser.read(4).decode("utf-8"))
                         print(f"val = {val}")
                         if not hasattr(self, "oldXSerVal"):
                             self.oldXSerVal = val
@@ -868,7 +931,7 @@ class Tron3D:
                         elif val < self.oldXSerVal:
                             if self.tron_client.game_is_on():
                                 self.tron_client.send_move("D")
-                        self.ser.write(b'X')
+                        self.ser.write(b"X")
             except:
                 self.ser = None
 
@@ -896,12 +959,12 @@ class Tron3D:
                                 self.serverlist_i += 1
                         else:
                             if event.key == pygame.K_RETURN:
-                                self.tron_client.connect(self.host, self.port,
-                                                         self.name)
+                                self.tron_client.connect(
+                                    self.host, self.port, self.name
+                                )
                             elif event.key == pygame.K_TAB:
                                 self.edit = (self.edit + 1) % 2
-                            elif event.key == pygame.K_f \
-                                    and (mods & pygame.KMOD_CTRL):
+                            elif event.key == pygame.K_f and (mods & pygame.KMOD_CTRL):
                                 in_select_server = True
                             elif event.key == pygame.K_BACKSPACE:
                                 if self.edit == 0:
@@ -915,7 +978,7 @@ class Tron3D:
                                         self.name += char
                                     elif self.edit == 1:
                                         self.host += char
-                            
+
                     elif self.tron_client.game_is_on():
                         keymap = {
                             pygame.K_LEFT: "R",
@@ -940,8 +1003,10 @@ class Tron3D:
             pygame.display.flip()
             self.clock.tick(self.fps)
 
+
 def main(argv):
     tron3d = Tron3D(60, 800, 600)
     tron3d.run()
+
 
 main(sys.argv)

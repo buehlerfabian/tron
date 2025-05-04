@@ -6,6 +6,7 @@ import threading
 
 from enum import Enum, auto
 
+
 def get_local_subnet():
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -16,6 +17,7 @@ def get_local_subnet():
         return subnet
     except:
         return "192.168.0."
+
 
 class ServerScanner:
 
@@ -32,8 +34,7 @@ class ServerScanner:
             if self.search_done is None or self.search_done:
                 print("Scanning for servers in local network")
                 self.search_done = False
-                self._thread = threading.Thread(target=self._scan,
-                                                daemon=True)
+                self._thread = threading.Thread(target=self._scan, daemon=True)
                 self._thread.start()
 
     def _scan(self):
@@ -41,8 +42,7 @@ class ServerScanner:
         base_ip = get_local_subnet()
         test_ips.extend(base_ip + str(i) for i in range(1, 255))
 
-        print(f"Scanning {base_ip}0/24 and "
-              f"localhost on port {self.port}...")
+        print(f"Scanning {base_ip}0/24 and " f"localhost on port {self.port}...")
 
         for ip in test_ips:
             try:
@@ -67,11 +67,12 @@ class ServerScanner:
         with self._lock:
             return list(self.found)
 
-    def search_completed(self, done = None):
+    def search_completed(self, done=None):
         with self._lock:
             if done is not None:
                 self.search_done = True
             return self.search_done
+
 
 class TronClientConnection:
     def __init__(self, ip, port):
@@ -124,12 +125,13 @@ class TronClientConnection:
 
         return ""
 
+
 class TronClient:
 
     class State(Enum):
-        ERR_SERVER_CONNECTION = auto()      # can not connect
-        ERR_NOT_TRON_SERVER = auto()        # not a TRON server
-        ERR_CONNECTION_LOST = auto()        # connection lost
+        ERR_SERVER_CONNECTION = auto()  # can not connect
+        ERR_NOT_TRON_SERVER = auto()  # not a TRON server
+        ERR_CONNECTION_LOST = auto()  # connection lost
         NOT_CONNECTED = auto()
         CONNECTED = auto()
         WAITING_FOR_ID = auto()
@@ -138,7 +140,7 @@ class TronClient:
         RECEIVED_START = auto()
         RECEIVED_END = auto()
 
-    def __init__(self, viewer = None):
+    def __init__(self, viewer=None):
         self.state = TronClient.State.NOT_CONNECTED
         self.arena = Arena()
         self.ready_to_go = False
@@ -147,12 +149,12 @@ class TronClient:
         self.viewer = viewer
 
         ## NOT_CONNECTED -> CONNECTED
-        self.host = None                # required
-        self.port = None                # required
-        self.conn = None                # set
+        self.host = None  # required
+        self.port = None  # required
+        self.conn = None  # set
 
         # CONNECTED -> WAITING_FOR_GO
-        self.name = None                # required
+        self.name = None  # required
 
         # WAITING_FOR_GO -> RECEIVED_GO
 
@@ -170,30 +172,20 @@ class TronClient:
         }
 
         self.state_msg = {
-            TronClient.State.ERR_SERVER_CONNECTION:
-                lambda: f"Can not connect to server",
-            TronClient.State.ERR_NOT_TRON_SERVER:
-                lambda: f"Not a TRON server",
-            TronClient.State.ERR_CONNECTION_LOST:
-                lambda: f"Connection to server {self.host} lost",
-            TronClient.State.NOT_CONNECTED:
-                lambda: f"Not connected",
-            TronClient.State.CONNECTED:
-                lambda: f"Connected to server {self.host}",
-            TronClient.State.WAITING_FOR_ID:
-                lambda: f"Waiting for my id number",
-            TronClient.State.WAITING_FOR_GO:
-                lambda: f"Waiting for others to be ready to play",
-            TronClient.State.RECEIVED_GO:
-                lambda: f"Press any key for next round",
-            TronClient.State.RECEIVED_START:
-                lambda: f"Game on!",
-            TronClient.State.RECEIVED_END:
-                lambda: f"That’s it for this round!",
+            TronClient.State.ERR_SERVER_CONNECTION: lambda: f"Can not connect to server",
+            TronClient.State.ERR_NOT_TRON_SERVER: lambda: f"Not a TRON server",
+            TronClient.State.ERR_CONNECTION_LOST: lambda: f"Connection to server {self.host} lost",
+            TronClient.State.NOT_CONNECTED: lambda: f"Not connected",
+            TronClient.State.CONNECTED: lambda: f"Connected to server {self.host}",
+            TronClient.State.WAITING_FOR_ID: lambda: f"Waiting for my id number",
+            TronClient.State.WAITING_FOR_GO: lambda: f"Waiting for others to be ready to play",
+            TronClient.State.RECEIVED_GO: lambda: f"Press any key for next round",
+            TronClient.State.RECEIVED_START: lambda: f"Game on!",
+            TronClient.State.RECEIVED_END: lambda: f"That’s it for this round!",
         }
 
     def get_state_msg(self):
-        #return f"state: {self.state}: " + self.state_msg[self.state]
+        # return f"state: {self.state}: " + self.state_msg[self.state]
         return self.state_msg[self.state]()
 
     def not_connected(self):
@@ -271,7 +263,7 @@ class TronClient:
             if not banner:
                 self.state = TronClient.State.ERR_NOT_TRON_SERVER
                 return True
-            
+
         assert self.conn is not None
         self.state = TronClient.State.CONNECTED
         return True
@@ -285,7 +277,6 @@ class TronClient:
         if not self.conn.send(self.name + "\n"):
             self.state = TronClient.State.ERR_CONNECTION_LOST
             return True
-
 
         self.state = TronClient.State.WAITING_FOR_ID
         return True
@@ -392,8 +383,10 @@ class TronClient:
             return True
         return False
 
+
 def sign(x):
     return (x > 0) - (x < 0)
+
 
 def angle_between(u, v):
     if u[0] == v[0] and u[1] == v[1]:
@@ -407,6 +400,7 @@ def angle_between(u, v):
     else:
         print(f"u = {u}, v = {v}")
         raise ValueError("Only special cases are handled")
+
 
 class Player:
     def __init__(self):
@@ -430,7 +424,7 @@ class Player:
     def set_position(self, x, y):
         self.x, self.y = x, y
         if self.path is None:
-            self.path = [ (x, y), (x, y) ]
+            self.path = [(x, y), (x, y)]
 
         last_x, last_y = self.path[-1]
         dx = sign(self.x - last_x)
@@ -446,6 +440,7 @@ class Player:
             self.angle_turn += angle_between((self.dx, self.dy), (dx, dy))
             self.dx = dx
             self.dy = dy
+
 
 class Arena:
 
@@ -476,7 +471,7 @@ class Arena:
     def del_player(self, player_index):
         self.player[player_index] = None
 
-    def end_round(self, winner_index = -1):
+    def end_round(self, winner_index=-1):
         for i in range(len(self.score)):
             self.ready[i] = False
             if i == winner_index:
@@ -485,28 +480,27 @@ class Arena:
     def set_position(self, pos_list):
         for i, p in enumerate(self.player):
             if p is not None:
-                p.set_position(float(pos_list[2 * i]),
-                               float(pos_list[2 * i + 1]))
+                p.set_position(float(pos_list[2 * i]), float(pos_list[2 * i + 1]))
 
     def print(self):
         if self.player is None:
             return
         if self.I_am_player is not None:
-            print(f"I am player {self.I_am_player} "
-                  f"{self.name[self.I_am_player]}")
+            print(f"I am player {self.I_am_player} " f"{self.name[self.I_am_player]}")
         else:
             print(f"I am player ?")
         for i, p in enumerate(self.player):
-            print(f"{self.score[i]}", end='')
+            print(f"{self.score[i]}", end="")
             if self.ready[i]:
-                print(f"> ", end='')
+                print(f"> ", end="")
             else:
-                print(f"? ", end='')
-            print(f"{self.name[i]}: ", end='', flush=True)
+                print(f"? ", end="")
+            print(f"{self.name[i]}: ", end="", flush=True)
             if self.player[i] is not None:
                 if self.player[i].path is not None:
-                    print(f"{self.player[i].path[-4:]}", end='', flush=True)
+                    print(f"{self.player[i].path[-4:]}", end="", flush=True)
             print(flush=True)
+
 
 def main():
     tron_client = TronClient()
@@ -531,9 +525,8 @@ def main():
                 break
             tron_client.ready_to_go = True
 
-        print("\033[2J\033[H", end='') # clear screen
-            
-        
+        print("\033[2J\033[H", end="")  # clear screen
+
         status = tron_client.get_state_msg()
         print(f"status = '{status}'", flush=True)
 
@@ -546,5 +539,6 @@ def main():
             tron_client.arena.print()
         time.sleep(1 / 40)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

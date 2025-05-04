@@ -7,7 +7,7 @@ import time
 from enum import Enum, auto
 
 FPS = 40
-HOST = '0.0.0.0'
+HOST = "0.0.0.0"
 PORT = 65432
 
 WIDTH = 1000
@@ -16,6 +16,7 @@ NUM_PLAYERS = 3
 
 SPEED = (0.1, 0.3, 0.7, 0.9, 1.0, 1.1, 1.3, 1.7, 2.5, 4.1)
 SPEED_INITIAL = 4
+
 
 class TronServerConnection:
     def __init__(self, host, port, num_players):
@@ -67,8 +68,7 @@ class TronServerConnection:
                 conn.setblocking(False)
 
                 self.conn[free_index] = conn
-                print(f"New connection from {addr} assigned to slot "
-                      f"{free_index}")
+                print(f"New connection from {addr} assigned to slot " f"{free_index}")
                 return free_index
         except Exception as e:
             print(f"Error accepting connection: {type(e).__name__} – {e}")
@@ -85,8 +85,7 @@ class TronServerConnection:
                 data = conn.recv(1, socket.MSG_PEEK)
                 if data == b"":  # sauber geschlossen
                     return False
-        except (BlockingIOError, ConnectionResetError, BrokenPipeError,
-                OSError):
+        except (BlockingIOError, ConnectionResetError, BrokenPipeError, OSError):
             return False
         return True
 
@@ -108,11 +107,11 @@ class TronServerConnection:
             self.disconnect_player(i)
             return False
 
-    def broadcast(self, msg, newline = True):
+    def broadcast(self, msg, newline=True):
         begin = "" if newline else "\r"
         end = "\n" if newline else ""
         print(f"{begin}Broadcast: {msg.strip()}", end=end)
-            
+
         for i in range(len(self.conn)):
             if self.conn[i] is not None:
                 if not self.send_to_client(i, msg):
@@ -128,15 +127,19 @@ class TronServerConnection:
             if conn in readable:
                 data = conn.recv(64)
                 if not data:
-                    print(f"Player {player_index + 1} disconnected "
-                          f"(recv returned empty)")
+                    print(
+                        f"Player {player_index + 1} disconnected "
+                        f"(recv returned empty)"
+                    )
                     self.disconnect_player(player_index)
                     return False
                 self.buff[player_index] += data.decode("utf-8")
                 return True
         except (ConnectionResetError, BrokenPipeError, OSError) as e:
-            print(f"Error reading from Player {player_index + 1}: "
-                  f"{type(e).__name__} – {e}")
+            print(
+                f"Error reading from Player {player_index + 1}: "
+                f"{type(e).__name__} – {e}"
+            )
             self.disconnect_player(player_index)
             return False
         return False
@@ -156,10 +159,9 @@ class TronServerConnection:
         if self.conn[player_index] is None:
             return ""
         self.read_from_client(player_index)
-        
+
         if "\n" in self.buff[player_index]:
-            line, self.buff[player_index] \
-                    = self.buff[player_index].split("\n", 1)
+            line, self.buff[player_index] = self.buff[player_index].split("\n", 1)
             return line.strip()
 
         return ""
@@ -168,7 +170,7 @@ class TronServerConnection:
 class TronServer:
 
     class State(Enum):
-        ERR = auto()                        # can not connect
+        ERR = auto()  # can not connect
         INITIAL = auto()
         WAITING_FOR_PLAYERS = auto()
         ALL_PLAYERS_CONNECTED = auto()
@@ -194,40 +196,26 @@ class TronServer:
         self.state = TronServer.State.INITIAL
         self.last_state = None
 
-        self.conn = None        # set by handle_initial
+        self.conn = None  # set by handle_initial
 
         self.state_handlers = {
-            TronServer.State.ERR:
-                self.handle_err,
-            TronServer.State.INITIAL:
-                self.handle_initial,
-            TronServer.State.WAITING_FOR_PLAYERS:
-                self.handle_waiting_for_players,
-            TronServer.State.ALL_PLAYERS_CONNECTED:
-                self.handle_all_players_connected,
-            TronServer.State.WAITING_FOR_GO:
-                self.handle_waiting_for_go,
-            TronServer.State.GAME_STARTED:
-                self.handle_game_started,
-            TronServer.State.WAITING_FOR_END:
-                self.handle_waiting_for_end,
+            TronServer.State.ERR: self.handle_err,
+            TronServer.State.INITIAL: self.handle_initial,
+            TronServer.State.WAITING_FOR_PLAYERS: self.handle_waiting_for_players,
+            TronServer.State.ALL_PLAYERS_CONNECTED: self.handle_all_players_connected,
+            TronServer.State.WAITING_FOR_GO: self.handle_waiting_for_go,
+            TronServer.State.GAME_STARTED: self.handle_game_started,
+            TronServer.State.WAITING_FOR_END: self.handle_waiting_for_end,
         }
 
         self.state_msg = {
-            TronServer.State.ERR:
-                "Server not running",
-            TronServer.State.INITIAL:
-                "Ready to start TRON server",
-            TronServer.State.WAITING_FOR_PLAYERS:
-                "Waiting for other players to join",
-            TronServer.State.ALL_PLAYERS_CONNECTED:
-                "All players connected",
-            TronServer.State.WAITING_FOR_GO:
-                "Waiting for go from players",
-            TronServer.State.GAME_STARTED:
-                "Game on!",
-            TronServer.State.WAITING_FOR_END:
-                "Game ended!",
+            TronServer.State.ERR: "Server not running",
+            TronServer.State.INITIAL: "Ready to start TRON server",
+            TronServer.State.WAITING_FOR_PLAYERS: "Waiting for other players to join",
+            TronServer.State.ALL_PLAYERS_CONNECTED: "All players connected",
+            TronServer.State.WAITING_FOR_GO: "Waiting for go from players",
+            TronServer.State.GAME_STARTED: "Game on!",
+            TronServer.State.WAITING_FOR_END: "Game ended!",
         }
 
     def new_round(self):
@@ -238,7 +226,7 @@ class TronServer:
             (self.width // 3 * 1, self.height // 2, 1, 0),
             (self.width // 3 * 2, self.height // 2, -1, 0),
             (self.width // 2, self.height // 3 * 1, 0, 1),
-            (self.width // 2, self.height // 3 * 2, 0, -2)
+            (self.width // 2, self.height // 3 * 2, 0, -2),
         ]
         for i in range(self.num_players):
             self.player[i] = PlayerModel(*start_config[i])
@@ -273,8 +261,7 @@ class TronServer:
     def handle_initial(self):
         assert self.state == TronServer.State.INITIAL
 
-        self.conn = TronServerConnection(self.host, self.port,
-                                         self.num_players)
+        self.conn = TronServerConnection(self.host, self.port, self.num_players)
         if not self.conn.start():
             self.state = TronServer.State.ERR
             return True
@@ -310,11 +297,13 @@ class TronServer:
         assert self.state == TronServer.State.ALL_PLAYERS_CONNECTED
 
         self.new_round()
-        self.conn.broadcast(f"ARENA {self.width} {self.height} "
-                            f"{self.num_players}\n")
+        self.conn.broadcast(
+            f"ARENA {self.width} {self.height} " f"{self.num_players}\n"
+        )
         for player_index in range(self.num_players):
-            self.conn.broadcast(f"NAME {player_index} "
-                                f"{self.conn.name[player_index]}\n")
+            self.conn.broadcast(
+                f"NAME {player_index} " f"{self.conn.name[player_index]}\n"
+            )
         self.conn.broadcast(f"GO\n")
 
         self.state = TronServer.State.WAITING_FOR_GO
@@ -354,7 +343,7 @@ class TronServer:
         self.arena.move_player(self.dt)
         while True:
             msg, more = self.arena.gen_message()
-            self.conn.broadcast(msg, newline = False)
+            self.conn.broadcast(msg, newline=False)
             if msg[0] == "E":
                 self.state = TronServer.State.WAITING_FOR_END
                 return True
@@ -381,18 +370,22 @@ class TronServer:
             return True
         return False
 
-#---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+
 
 def on_segment(p, q, r):
-    return min(p[0], r[0]) <= q[0] <= max(p[0], r[0]) and \
-           min(p[1], r[1]) <= q[1] <= max(p[1], r[1])
+    return min(p[0], r[0]) <= q[0] <= max(p[0], r[0]) and min(p[1], r[1]) <= q[
+        1
+    ] <= max(p[1], r[1])
+
 
 def orientation(p, q, r):
-    val = (q[1] - p[1]) * (r[0] - q[0]) - \
-          (q[0] - p[0]) * (r[1] - q[1])
+    val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1])
     if abs(val) < 1e-9:
         return 0
     return 1 if val > 0 else 2
+
 
 def segments_intersect(p1, q1, p2, q2):
     o1 = orientation(p1, q1, p2)
@@ -403,10 +396,14 @@ def segments_intersect(p1, q1, p2, q2):
     if o1 != o2 and o3 != o4:
         return True
 
-    if o1 == 0 and on_segment(p1, p2, q1): return True
-    if o2 == 0 and on_segment(p1, q2, q1): return True
-    if o3 == 0 and on_segment(p2, p1, q2): return True
-    if o4 == 0 and on_segment(p2, q1, q2): return True
+    if o1 == 0 and on_segment(p1, p2, q1):
+        return True
+    if o2 == 0 and on_segment(p1, q2, q1):
+        return True
+    if o3 == 0 and on_segment(p2, p1, q2):
+        return True
+    if o4 == 0 and on_segment(p2, q1, q2):
+        return True
     return False
 
 
@@ -435,7 +432,7 @@ class Arena:
         for path_index, path in enumerate(self.path):
             skip_last = 3 if path_index == player_id else 1
             for i in range(len(path) - skip_last):
-                if segments_intersect((x0, y0), (x, y), path[i], path[i+1]):
+                if segments_intersect((x0, y0), (x, y), path[i], path[i + 1]):
                     return True
         return False
 
@@ -469,9 +466,11 @@ class Arena:
                 msg += f" {p.x:.2f} {p.y:.2f}"
 
                 if p.x != self.last_pos[i][0] and p.y != self.last_pos[i][1]:
-                    raise RuntimeError(f"Player {i}: last pos "
-                                       f"{self.last_pos[i]} "
-                                       f"new pos {p.x} {p.y}")
+                    raise RuntimeError(
+                        f"Player {i}: last pos "
+                        f"{self.last_pos[i]} "
+                        f"new pos {p.x} {p.y}"
+                    )
                 self.last_pos[i][0] = p.x
                 self.last_pos[i][1] = p.y
             return (msg + "\n", False)
@@ -483,6 +482,7 @@ class Arena:
             return (f"E {-1}\n", False)
         else:
             return (None, False)
+
 
 class PlayerModel:
     def __init__(self, x, y, dx, dy):
@@ -522,7 +522,9 @@ class PlayerModel:
         self.x += self.dx * SPEED[self.speed] * dt * 60
         self.y += self.dy * SPEED[self.speed] * dt * 60
 
-#---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+
 
 def main(argv):
     width, height, num_players = WIDTH, HEIGHT, NUM_PLAYERS
@@ -543,5 +545,6 @@ def main(argv):
         tron_server.run(dt)
 
         time.sleep(max(0, 1.0 / FPS - (time.time() - now)))
+
 
 main(sys.argv)

@@ -7,15 +7,16 @@ from tron_client import ServerScanner
 import serial.tools.list_ports
 
 C_PLAYER = [
-    (111, 226, 226), # cyan (Player 1)
-    (242, 160, 7),   # orange (Player 2)
-    (180, 0, 255),   # neon purple (Player 3)
-    (0, 255, 128)    # turquoise green (Player 4)
+    (111, 226, 226),  # cyan (Player 1)
+    (242, 160, 7),  # orange (Player 2)
+    (180, 0, 255),  # neon purple (Player 3)
+    (0, 255, 128),  # turquoise green (Player 4)
 ]
 
 C_ARENA = (50, 50, 50)
 C_DEAD = (55, 10, 10)
 C_GRID = (200, 200, 200)
+
 
 class Tron2D:
 
@@ -35,15 +36,18 @@ class Tron2D:
         self.winner = None
 
         ser_dev = next(
-            (p.device for p in serial.tools.list_ports.comports()
-                if p.device.startswith("/dev/cu.usbserial")),
-            None
+            (
+                p.device
+                for p in serial.tools.list_ports.comports()
+                if p.device.startswith("/dev/cu.usbserial")
+            ),
+            None,
         )
         self.ser = None
         if ser_dev is not None:
             try:
                 self.ser = serial.Serial(ser_dev, 9600, timeout=0)
-                self.ser.write(b'X')
+                self.ser.write(b"X")
             except:
                 print(f"can not open serial device {ser_dev}")
 
@@ -55,7 +59,7 @@ class Tron2D:
         fonts = pygame.font.get_fonts()
         for name in sorted(fonts):
             print(name)
-        
+
         mono_fonts = ["andalemono", "consolas", "couriernew", "monospace"]
         normal_fonts = ["helvetica", "timesnewroman", "monospace"]
 
@@ -103,9 +107,11 @@ class Tron2D:
         arena = self.tron_client.arena
         x, y, angle = arena.width // 2, arena.height // 2, 0
 
-        if arena.I_am_player is not None \
-                and arena.player[arena.I_am_player] is not None \
-                and arena.player[arena.I_am_player].x is not None:
+        if (
+            arena.I_am_player is not None
+            and arena.player[arena.I_am_player] is not None
+            and arena.player[arena.I_am_player].x is not None
+        ):
             x = arena.player[arena.I_am_player].x
             y = arena.player[arena.I_am_player].y
             angle = arena.player[arena.I_am_player].get_angle()
@@ -116,7 +122,7 @@ class Tron2D:
         assert self.tron_client.arena is not None
 
         arena = self.tron_client.arena
-    
+
         msg = "All dead! No winner!"
         color = (255, 255, 255)
         if winner >= 0:
@@ -126,28 +132,29 @@ class Tron2D:
         self.winner = self.winner_font.render(msg, True, color)
 
     def show_connect(self):
-        title_text = self.title_font.render("TRON: Lightcycle", True,
-                                            (255, 255, 255))
+        title_text = self.title_font.render("TRON: Lightcycle", True, (255, 255, 255))
         title_rect = title_text.get_rect(center=(self.width // 2, 80))
         self.screen.blit(title_text, title_rect)
 
         prompt_name = self.input_font.render("Name:", True, (100, 200, 100))
-        input_name = self.input_font.render(self.name
-            + ("‸" if self.edit == 0 else ""), True, (155, 255, 155))
+        input_name = self.input_font.render(
+            self.name + ("‸" if self.edit == 0 else ""), True, (155, 255, 155)
+        )
         self.screen.blit(prompt_name, (self.width // 5, 180))
-        self.screen.blit(input_name,   (self.width // 5 + 150, 180))
+        self.screen.blit(input_name, (self.width // 5 + 150, 180))
 
         prompt_server = self.input_font.render("Server:", True, (100, 200, 100))
-        input_server = self.input_font.render(self.host
-            + ("‸" if self.edit == 1 else ""), True, (155, 255, 155))
+        input_server = self.input_font.render(
+            self.host + ("‸" if self.edit == 1 else ""), True, (155, 255, 155)
+        )
         self.screen.blit(prompt_server, (self.width // 5, 230))
-        self.screen.blit(input_server,   (self.width // 5 + 150, 230))
+        self.screen.blit(input_server, (self.width // 5 + 150, 230))
 
-        hint = ("^Q: Quit  |  TAB: switch field  |  ^F: find server  "
-                "|  RETURN: connect")
+        hint = (
+            "^Q: Quit  |  TAB: switch field  |  ^F: find server  " "|  RETURN: connect"
+        )
         hint_text = self.hint_font.render(hint, True, (150, 150, 150))
-        hint_rect = hint_text.get_rect(center=(self.width // 2,
-                                               self.height - 80))
+        hint_rect = hint_text.get_rect(center=(self.width // 2, self.height - 80))
         self.screen.blit(hint_text, hint_rect)
 
     def get_serverlist(self):
@@ -155,7 +162,8 @@ class Tron2D:
 
     def show_serverlist(self):
         title_text = self.title_font.render(
-                "TRON servers in local network", True, (255, 255, 255))
+            "TRON servers in local network", True, (255, 255, 255)
+        )
         title_rect = title_text.get_rect(center=(self.width // 2, 80))
         self.screen.blit(title_text, title_rect)
 
@@ -172,15 +180,20 @@ class Tron2D:
 
         lx, ly = self.width // 2 - 150, self.height // 3
         if self.serverlist_i0 > 0:
-            pygame.draw.polygon(self.screen, (0, 255, 255),
-                                [(lx+5, ly-15), (lx+25, ly-15), (lx+15, ly-25)])
+            pygame.draw.polygon(
+                self.screen,
+                (0, 255, 255),
+                [(lx + 5, ly - 15), (lx + 25, ly - 15), (lx + 15, ly - 25)],
+            )
         if self.serverlist_i0 + max_items < len(server_list):
             Ly = ly + max_items * 40
-            pygame.draw.polygon(self.screen, (0, 255, 255),
-                                [(lx+5, Ly), (lx+25, Ly), (lx+15, Ly+10)])
+            pygame.draw.polygon(
+                self.screen,
+                (0, 255, 255),
+                [(lx + 5, Ly), (lx + 25, Ly), (lx + 15, Ly + 10)],
+            )
 
-        server_list = server_list[self.serverlist_i0 :
-                                  self.serverlist_i0 + max_items ]
+        server_list = server_list[self.serverlist_i0 : self.serverlist_i0 + max_items]
 
         for i0, addr in enumerate(server_list):
             i = self.serverlist_i0 + i0
@@ -190,17 +203,15 @@ class Tron2D:
 
         hint = "ESC: Cancle  |  RETURN: select  |  ↑↓:  up / down"
         hint_text = self.hint_font.render(hint, True, (150, 150, 150))
-        hint_rect = hint_text.get_rect(center=(self.width // 2,
-                                               self.height - 80))
+        hint_rect = hint_text.get_rect(center=(self.width // 2, self.height - 80))
         self.screen.blit(hint_text, hint_rect)
 
     def show_state(self):
         state = self.tron_client.get_state_msg()
         state_text = self.state_font.render(state, True, (150, 150, 150))
-        state_rect = state_text.get_rect(center=(self.width // 2,
-                                                 self.height - 40))
+        state_rect = state_text.get_rect(center=(self.width // 2, self.height - 40))
         self.screen.blit(state_text, state_rect)
-        
+
     def show_score(self):
         padding = 10
         y = padding
@@ -223,8 +234,9 @@ class Tron2D:
             y += label.get_height() + 5
 
         if self.winner is not None:
-            winner_rect = self.winner.get_rect(center=(self.width // 2,
-                                                       self.height // 2))
+            winner_rect = self.winner.get_rect(
+                center=(self.width // 2, self.height // 2)
+            )
             self.screen.blit(self.winner, winner_rect)
 
     def show_arena(self):
@@ -235,7 +247,7 @@ class Tron2D:
         self.s_arena.blit(self.s_grid, (0, 0))
 
         border_color = (255, 0, 0)
-        border_rec = pygame.Rect(0, 0, arena.width, arena.height) 
+        border_rec = pygame.Rect(0, 0, arena.width, arena.height)
         pygame.draw.rect(self.s_arena, border_color, border_rec, 1)
 
         for pi, p in enumerate(arena.player):
@@ -244,20 +256,21 @@ class Tron2D:
             for i in range(len(p.path) - 1):
                 x0, y0 = p.path[i]
                 x1, y1 = p.path[i + 1]
-                pygame.draw.line(self.s_arena, C_PLAYER[pi],
-                                 (x0, y0), (x1, y1), 3)
+                pygame.draw.line(self.s_arena, C_PLAYER[pi], (x0, y0), (x1, y1), 3)
 
         x, y, angle = self.focus_coords()
 
         self.s_world.blit(self.s_arena, self.arena_padding)
-        self.arena_viewport.center = (x + self.arena_padding[0],
-                                      y + self.arena_padding[1])
+        self.arena_viewport.center = (
+            x + self.arena_padding[0],
+            y + self.arena_padding[1],
+        )
 
         self.screen_crop = self.s_world.subsurface(self.arena_viewport)
         rotated = pygame.transform.rotate(self.screen_crop, angle)
         self.screen_viewport.center = rotated.get_rect().center
         rotated = rotated.subsurface(self.screen_viewport)
-        self.screen.blit(rotated, (0,0))
+        self.screen.blit(rotated, (0, 0))
 
     def run(self):
         in_select_server = False
@@ -286,7 +299,7 @@ class Tron2D:
                 elif ch == b"X":
                     while self.ser.in_waiting < 4:
                         pass
-                    val = int(self.ser.read(4).decode('utf-8'))
+                    val = int(self.ser.read(4).decode("utf-8"))
                     print(f"val = {val}")
                     if not hasattr(self, "oldXSerVal"):
                         self.oldXSerVal = val
@@ -296,7 +309,7 @@ class Tron2D:
                     elif val < self.oldXSerVal:
                         if self.tron_client.game_is_on():
                             self.tron_client.send_move("D")
-                    self.ser.write(b'X')
+                    self.ser.write(b"X")
 
             for event in pygame.event.get():
                 mods = pygame.key.get_mods()
@@ -320,12 +333,12 @@ class Tron2D:
                                 self.serverlist_i += 1
                         else:
                             if event.key == pygame.K_RETURN:
-                                self.tron_client.connect(self.host, self.port,
-                                                         self.name)
+                                self.tron_client.connect(
+                                    self.host, self.port, self.name
+                                )
                             elif event.key == pygame.K_TAB:
                                 self.edit = (self.edit + 1) % 2
-                            elif event.key == pygame.K_f \
-                                    and (mods & pygame.KMOD_CTRL):
+                            elif event.key == pygame.K_f and (mods & pygame.KMOD_CTRL):
                                 in_select_server = True
                             elif event.key == pygame.K_BACKSPACE:
                                 if self.edit == 0:
@@ -339,7 +352,7 @@ class Tron2D:
                                         self.name += char
                                     elif self.edit == 1:
                                         self.host += char
-                            
+
                     elif self.tron_client.game_is_on():
                         keymap = {
                             pygame.K_LEFT: "L",
@@ -358,8 +371,10 @@ class Tron2D:
             pygame.display.flip()
             self.clock.tick(self.fps)
 
+
 def main(argv):
     tron2d = Tron2D(60, 800, 600)
     tron2d.run()
+
 
 main(sys.argv)
